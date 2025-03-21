@@ -20,6 +20,8 @@ VideoHelper油猴脚本一站式解决你的烦恼！
 - **自动播放功能**：新增自动播放选项，开启后视频加载完成自动播放，无需手动点击播放按钮 。
 
 ### 截图
+![image](https://github.com/user-attachments/assets/d4e4d1f8-dd44-4bd2-962e-b7c707f1c29f)
+
 
 
 ## 2. ChromeTitleRename：谷歌浏览器标签页重命名
