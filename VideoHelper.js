@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         VideoHelper
 // @namespace    https://github.com/Cocowwy/Tampermonkey-Tools
-// @version      1.0
-// @description  看片小助肘 - 支持片头跳过设置，倍速播放记忆，自动全屏设置，音量记忆和截屏功能
+// @version      1.1
+// @description  看片小助肘 - 支持片头跳过设置，倍速播放记忆，自动全屏设置，音量记忆、截屏功能和自动播放功能
 // @author       Cocowwy
 // @match        *://*/*
+// @updateUrl    https://github.com/Cocowwy/Tampermonkey-Tools/blob/master/VideoHelper.js
 // @grant        none
 // ==/UserScript==
 
@@ -15,6 +16,7 @@
     const SPEED_STORAGE_KEY = 'video_playback_speed';
     const AUTO_FULLSCREEN_KEY = 'video_auto_fullscreen';
     const VOLUME_STORAGE_KEY = 'video_volume';
+    const AUTO_PLAY_KEY = 'video_auto_play';
     let isPanelVisible = false;
     let isDragging = false;
     let startX, startY, initialX, initialY;
@@ -138,6 +140,10 @@
                 自动全屏:
             </label>
             <input type="checkbox" id="autoFullscreenCheckbox">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px;">
+                自动播放:
+            </label>
+            <input type="checkbox" id="autoPlayCheckbox">
             <button id="saveBtn"
                     style="width: 100%;
                            padding: 8px;
@@ -169,6 +175,7 @@
     const speedInput = panel.querySelector('#speedInput');
     const volumeInput = panel.querySelector('#volumeInput');
     const autoFullscreenCheckbox = panel.querySelector('#autoFullscreenCheckbox');
+    const autoPlayCheckbox = panel.querySelector('#autoPlayCheckbox');
     const saveBtn = panel.querySelector('#saveBtn');
     const closeBtn = panel.querySelector('#closeBtn');
     const screenshotBtn = panel.querySelector('#screenshotBtn');
@@ -195,18 +202,21 @@
     speedInput.value = localStorage.getItem(SPEED_STORAGE_KEY) || 1;
     volumeInput.value = localStorage.getItem(VOLUME_STORAGE_KEY) || 100;
     autoFullscreenCheckbox.checked = localStorage.getItem(AUTO_FULLSCREEN_KEY) === 'true';
+    autoPlayCheckbox.checked = localStorage.getItem(AUTO_PLAY_KEY) === 'true';
 
     saveBtn.addEventListener('click', () => {
         const jumpTime = parseInt(timeInput.value, 10);
         const playbackSpeed = parseFloat(speedInput.value);
         const volume = parseInt(volumeInput.value, 10);
         const autoFullscreen = autoFullscreenCheckbox.checked;
+        const autoPlay = autoPlayCheckbox.checked;
 
         if (!isNaN(jumpTime) && !isNaN(playbackSpeed) && !isNaN(volume) && volume >= 0 && volume <= 100) {
             localStorage.setItem(STORAGE_KEY, jumpTime);
             localStorage.setItem(SPEED_STORAGE_KEY, playbackSpeed);
             localStorage.setItem(VOLUME_STORAGE_KEY, volume);
             localStorage.setItem(AUTO_FULLSCREEN_KEY, autoFullscreen);
+            localStorage.setItem(AUTO_PLAY_KEY, autoPlay);
 
             const video = document.querySelector('video');
             if (video) {
@@ -221,6 +231,11 @@
                     } else if (video.msRequestFullscreen) {
                         video.msRequestFullscreen();
                     }
+                }
+                if (autoPlay) {
+                    video.play().catch(() => {
+                        showToast('⚠️ 自动播放被浏览器阻止，请手动播放');
+                    });
                 }
             }
 
@@ -259,6 +274,7 @@
             const playbackSpeed = parseFloat(localStorage.getItem(SPEED_STORAGE_KEY));
             const volume = parseFloat(localStorage.getItem(VOLUME_STORAGE_KEY));
             const autoFullscreen = localStorage.getItem(AUTO_FULLSCREEN_KEY) === 'true';
+            const autoPlay = localStorage.getItem(AUTO_PLAY_KEY) === 'true';
 
             if (!isNaN(jumpTime) && jumpTime <= video.duration) {
                 video.currentTime = jumpTime;
@@ -277,6 +293,11 @@
                 } else if (video.msRequestFullscreen) {
                     video.msRequestFullscreen();
                 }
+            }
+            if (autoPlay) {
+                video.play().catch(() => {
+                    showToast('⚠️ 自动播放被浏览器阻止，请手动播放');
+                });
             }
         });
     }
