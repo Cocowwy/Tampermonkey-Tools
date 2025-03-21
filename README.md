@@ -4,7 +4,7 @@
 ![GitHub 关注者数](https://img.shields.io/github/watchers/Cocowwy/Tampermonkey-Tools?style=social)
 
 ## 1. VideoHelper：视频观看助手
-[[快速安装]([https://greasyfork.org/zh-CN/scripts/你的脚本编号](https://greasyfork.org/zh-CN/scripts/530443-videohelper))](https://greasyfork.org/zh-CN/scripts/530443-videohelper)
+[快速安装](https://greasyfork.org/zh-CN/scripts/530443-videohelper)
 
 ### 问题
 日常看视频时，大家是不是常被这些问题困扰：漫长的片头广告、找不到合适的播放倍速、频繁调节音量、想全屏观看却操作不便，还有不同网站重复设置视频参数的繁琐。这些都严重影响观影体验。
