@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VideoHelper
 // @namespace    https://github.com/Cocowwy/Tampermonkey-Tools
-// @version      1.1
+// @version      1.2
 // @description  看片小助肘 - 支持片头跳过设置，倍速播放记忆，自动全屏设置，音量记忆、截屏功能和自动播放功能
 // @author       Cocowwy
 // @match        *://*/*
@@ -223,15 +223,7 @@
                 video.currentTime = jumpTime;
                 video.playbackRate = playbackSpeed;
                 video.volume = volume / 100;
-                if (autoFullscreen) {
-                    if (video.requestFullscreen) {
-                        video.requestFullscreen();
-                    } else if (video.webkitRequestFullscreen) {
-                        video.webkitRequestFullscreen();
-                    } else if (video.msRequestFullscreen) {
-                        video.msRequestFullscreen();
-                    }
-                }
+                
                 if (autoPlay) {
                     video.play().catch(() => {
                         showToast('⚠️ 自动播放被浏览器阻止，请手动播放');
@@ -244,6 +236,44 @@
             showToast('⚠️ 请输入有效数字，音量范围为 0 - 100');
         }
     });
+
+    // 视频处理
+    const video = document.querySelector('video');
+    if (video) {
+        video.addEventListener('loadedmetadata', () => {
+            const jumpTime = parseInt(localStorage.getItem(STORAGE_KEY), 10);
+            const playbackSpeed = parseFloat(localStorage.getItem(SPEED_STORAGE_KEY));
+            const volume = parseFloat(localStorage.getItem(VOLUME_STORAGE_KEY));
+            const autoFullscreen = localStorage.getItem(AUTO_FULLSCREEN_KEY) === 'true';
+
+            if (!isNaN(jumpTime) && jumpTime <= video.duration) {
+                video.currentTime = jumpTime;
+            }
+            if (!isNaN(playbackSpeed)) {
+                video.playbackRate = playbackSpeed;
+            }
+            if (!isNaN(volume) && volume >= 0 && volume <= 100) {
+                video.volume = volume / 100;
+            }
+        });
+
+        video.addEventListener('play', () => {
+            const autoFullscreen = localStorage.getItem(AUTO_FULLSCREEN_KEY) === 'true';
+            if (autoFullscreen) {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                } else if (video.mozRequestFullscreen) {
+                    video.mozRequestFullscreen();
+                } else {
+                    showToast('⚠️ 当前浏览器不支持全屏功能');
+                }
+            }
+        });
+    }
 
     // 截屏功能
     screenshotBtn.addEventListener('click', () => {
@@ -265,42 +295,6 @@
             showToast('⚠️ 未找到视频元素');
         }
     });
-
-    // 视频处理
-    const video = document.querySelector('video');
-    if (video) {
-        video.addEventListener('loadedmetadata', () => {
-            const jumpTime = parseInt(localStorage.getItem(STORAGE_KEY), 10);
-            const playbackSpeed = parseFloat(localStorage.getItem(SPEED_STORAGE_KEY));
-            const volume = parseFloat(localStorage.getItem(VOLUME_STORAGE_KEY));
-            const autoFullscreen = localStorage.getItem(AUTO_FULLSCREEN_KEY) === 'true';
-            const autoPlay = localStorage.getItem(AUTO_PLAY_KEY) === 'true';
-
-            if (!isNaN(jumpTime) && jumpTime <= video.duration) {
-                video.currentTime = jumpTime;
-            }
-            if (!isNaN(playbackSpeed)) {
-                video.playbackRate = playbackSpeed;
-            }
-            if (!isNaN(volume) && volume >= 0 && volume <= 100) {
-                video.volume = volume / 100;
-            }
-            if (autoFullscreen) {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
-                } else if (video.msRequestFullscreen) {
-                    video.msRequestFullscreen();
-                }
-            }
-            if (autoPlay) {
-                video.play().catch(() => {
-                    showToast('⚠️ 自动播放被浏览器阻止，请手动播放');
-                });
-            }
-        });
-    }
 
     // 提示信息函数
     function showToast(message) {
